@@ -83,7 +83,26 @@
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .clock-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .tile-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 0 4px; }
+  /* Top row: key on the left, sunrise/sunset progress in the middle, zone on the right. */
+  .tile-top { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; min-height: 44px; padding: 0 4px; }
+  .tile-top .zone { justify-self: end; }
+  .phase-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; max-width: 220px; }
+  .phase-wrap .progress { width: 100%; min-width: 80px; height: 5px; margin-top: 0; }
+  /* Bottom row: next agreement in the bottom-left corner, digital clock in
+     the middle, furthest-apart in the bottom-right corner. */
+  .foot { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 10px; padding: 0 4px; }
+  .foot .digital { grid-area: d; align-self: center; }
+  .foot .corner { font-size: 0.72rem; line-height: 1.35; color: var(--muted); font-variant-numeric: tabular-nums; min-height: calc(3 * 1.35em); display: flex; flex-direction: column; justify-content: flex-end; }
+  .foot .corner.l { grid-area: l; text-align: left; }
+  .foot .corner.r { grid-area: r; text-align: right; }
+  .foot { grid-template-areas: "l d r"; }
+  @media (max-width: 619px) {
+    .tile-top { grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px; }
+    .tile-top .zone .iana { max-width: 84px; }
+    .tile-top .key .li { font-size: 0.68rem; }
+    .foot { grid-template-columns: 1fr 1fr; grid-template-areas: "d d" "l r"; row-gap: 6px; }
+    .foot .digital { justify-self: center; }
+  }
   .key { flex: 0 1 auto; display: flex; flex-direction: column; gap: 3px; padding: 2px 4px; font-size: 0.72rem; color: var(--muted); min-width: 0; }
   .key .li { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
   .key svg { width: 22px; height: 10px; flex: none; overflow: visible; }
@@ -115,8 +134,6 @@
   /* Times in the hand colors: real time and daylight time. */
   .cr { color: var(--real); font-weight: 600; }
   .cn { color: var(--norm); font-weight: 600; }
-  .ruler-info { font-size: 0.8rem; text-align: center; min-height: 1.2em; font-variant-numeric: tabular-nums; line-height: 1.4; }
-  .ruler-info:empty { display: none; }
   .loc { cursor: pointer; }
   .loc:hover { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
   .dens { flex-direction: row; flex: none; color: var(--text); display: flex; align-items: center; gap: 10px; font-size: 0.82rem; }
@@ -136,8 +153,8 @@
   }
   .digital .ampm { font-size: 0.4em; font-weight: 500; margin-left: 0.25em; opacity: 0.72; }
   .digital .sec { font-size: 0.45em; opacity: 0.72; }
-  .phase { font-size: 0.9rem; color: var(--muted); text-align: center; }
-  .match { font-size: 0.78rem; color: var(--muted); text-align: center; min-height: 1.2em; font-variant-numeric: tabular-nums; }
+  .phase { font-size: 0.78rem; color: var(--muted); text-align: center; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .phase b { color: var(--text); font-weight: 600; }
   .progress { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); overflow: hidden; margin-top: 6px; }
   .progress > div { height: 100%; width: 0; border-radius: 3px; background: var(--sun); }
   .banner {
@@ -258,7 +275,10 @@
   .tab[aria-selected="true"] { color: var(--text); background: rgba(255,255,255,0.14); box-shadow: inset 0 -2px 0 var(--accent); }
   .side.collapsed .tab[aria-selected="true"] { box-shadow: none; }
   .collapse { flex: none; width: 38px; padding: 8px 0; font-size: 0.9rem; border-radius: 10px; }
-  .tabpanel { display: none; flex-direction: column; gap: 10px; }
+  /* Every tab panel scrolls inside itself. */
+  .tabpanel { display: none; flex-direction: column; gap: 10px; overflow-y: auto; max-height: min(60vh, 520px);
+              scrollbar-width: thin; overscroll-behavior: contain; }
+  .tabpanel > * { flex-shrink: 0; }
   .side .tabpanel.active { display: flex; }
   .side.collapsed .tabpanel { display: none; }
   .layout.dash .tabpanel[data-title]::before {
@@ -294,12 +314,15 @@
   #dialBg .fa { stroke: color-mix(in srgb, var(--text) 14%, transparent); stroke-width: 0.4; }
   #dialBg .uc { fill: none; stroke: color-mix(in srgb, var(--text) 32%, transparent); stroke-width: 0.6; }
   #dialBg .lb { fill: color-mix(in srgb, var(--text) 55%, transparent); font-size: 4.4px; text-anchor: middle; dominant-baseline: central; }
+  #dialBg.outer .lb { font-size: 5px; }
+  #dialBg.outer .co { font-size: 3.6px; }
   #dialBg .co { fill: color-mix(in srgb, var(--text) 40%, transparent); font-size: 3.1px; text-anchor: middle; dominant-baseline: central; }
   #dialBg .rr { fill: none; stroke: color-mix(in srgb, var(--ink) 34%, transparent); stroke-width: 0.5; }
   #dialBg .rx { stroke: color-mix(in srgb, var(--ink) 26%, transparent); stroke-width: 0.4; }
   #dialBg .rl { fill: color-mix(in srgb, var(--ink) 55%, transparent); font-size: 3.4px; text-anchor: middle; dominant-baseline: central; }
   #dialBg .sw { fill: var(--ink); }
-  #dialBg .bl { fill: var(--ink); }
+  #radarBlips { pointer-events: none; }
+  #radarBlips .pr { fill: none; stroke: var(--ink); stroke-width: 0.6; }
   /* Rate graph */
   .ghead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .ghead .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
@@ -324,13 +347,14 @@
   .lg svg { width: 26px; height: 12px; flex: none; margin-top: 3px; overflow: visible; }
   .lg b { color: var(--text); font-weight: 600; }
   .legendp .note { text-align: left; }
-  /* The legend scrolls inside its own panel. */
-  .lgScroll { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: min(55vh, 440px);
-              padding-right: 6px; scrollbar-width: thin; overscroll-behavior: contain; }
+  .lgh { margin: 4px 0 0; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .lg.tabsd li { display: block; }
+  /* Wide and tall: the open tab fills the side column and scrolls; in the
+     dashboard each panel shrinks to share its column and scrolls. */
   @media (min-width: 880px) and (min-height: 560px) {
-    .side .legendp.active { flex: 1 1 auto; min-height: 0; }
-    .layout.dash #pLegend { flex: 1 1 0; min-height: 230px; }
-    .side .legendp .lgScroll, .layout.dash .legendp .lgScroll { flex: 1 1 0; min-height: 0; max-height: none; }
+    .side .tabpanel.active { flex: 1 1 auto; min-height: 0; max-height: none; }
+    .layout.dash .tabpanel { flex: 0 1 auto; min-height: 150px; max-height: none; }
+    .layout.dash #pLegend { flex: 1 1 0; min-height: 200px; }
   }
   /* Globe zoom */
   .globe-wrap { position: relative; align-self: center; width: 240px; max-width: 100%; }
@@ -356,6 +380,10 @@
       <div class="key" id="key" aria-hidden="true">
         <span class="li"><svg viewBox="0 0 26 12"><g class="hands" id="legA"><path d=""/></g></svg><span id="legAText">Real time</span></span>
         <span class="li"><svg viewBox="0 0 26 12"><g class="hands" id="legB"><path d=""/></g></svg><span id="legBText">Daylight time</span></span>
+      </div>
+      <div class="phase-wrap">
+        <div class="phase" id="phase">Waiting for location…</div>
+        <div class="progress"><div id="bar"></div></div>
       </div>
       <div class="zone" title="Time zone of the selected location">
         <div class="t"><div class="abbr" id="tzAbbr">—</div><div class="iana" id="tzName"></div></div>
@@ -397,17 +425,18 @@
       <g class="hands" id="setReal" style="color: var(--real)">
         <path class="h" id="rH"/><path class="m" id="rM"/><path class="s" id="rS"/><path class="ms" id="rMs"/>
       </g>
+      <!-- Radar blips sit above the hands so the next one never hides under the hour hand. -->
+      <g id="radarBlips"></g>
       <!-- Ruler hands: hours, minutes, seconds, milliseconds; drag the knobs. -->
       <g id="ruler" style="display:none"></g>
       <circle cx="100" cy="100" r="3" fill="var(--text)"/>
     </svg>
     </div>
-    <div class="digital" id="digital">--:--</div>
-    <div class="phase" id="phase">Waiting for location…</div>
-    <div class="match" id="match"></div>
-    <div class="match" id="apart"></div>
-    <div class="ruler-info" id="rulerInfo" aria-live="polite"></div>
-    <div class="progress"><div id="bar"></div></div>
+    <div class="foot">
+      <div class="corner l" id="match"></div>
+      <div class="digital" id="digital">--:--</div>
+      <div class="corner r" id="apart"></div>
+    </div>
   </section>
   <div class="col" id="colR"></div>
 
@@ -420,7 +449,7 @@
       <button type="button" class="collapse" id="collapseBtn" aria-label="Collapse panel" title="Collapse or expand">▾</button>
     </div>
 
-    <section class="panel tabpanel" id="pDetails" role="tabpanel" data-title="Details">
+    <section class="panel tabpanel" id="pDetails" role="tabpanel" tabindex="0" data-title="Details">
       <div class="banner" id="banner" hidden></div>
       <div class="grid">
         <div class="cell"><div class="k" id="otherK">Daylight time</div><div class="v" id="realTime">—</div><div class="s" id="realDate">—</div></div>
@@ -431,17 +460,16 @@
       </div>
     </section>
 
-    <section class="panel tabpanel graph" id="pGraph" role="tabpanel">
+    <section class="panel tabpanel graph" id="pGraph" role="tabpanel" tabindex="0">
       <div class="ghead">
         <span class="k">Daylight clock speed</span>
         <span class="gsub" id="gSub">× real time</span>
       </div>
       <div class="gbox" id="gBox"><canvas id="graph" height="170"></canvas></div>
       <div class="gtip" id="gTip" aria-live="polite"></div>
-      <p class="gnote">How fast the daylight clock runs compared with real time, over 24 hours from 6 hours ago. Each step is the average speed over 5 real minutes. Hover or tap for a step's details; otherwise the strip shows the step at the ruler (or now, with the ruler off). The faint line is the other rate mode.</p>
     </section>
 
-    <section class="panel tabpanel opts" id="pDisplay" role="tabpanel" data-title="Display">
+    <section class="panel tabpanel opts" id="pDisplay" role="tabpanel" tabindex="0" data-title="Display">
       <div class="k">Main hands</div>
       <div class="seg" role="group" aria-label="Main hands">
         <button type="button" id="mainReal" aria-pressed="true">Real time</button>
@@ -475,32 +503,37 @@
       <div class="theme-row">
         <select id="dialSel" aria-label="Dial style">
           <option value="plain">Plain</option>
-          <option value="unit">Unit circle</option>
+          <option value="inner">Unit circle: inner</option>
+          <option value="outer">Unit circle: outer</option>
           <option value="radar">Radar</option>
         </select>
       </div>
       <button type="button" id="resetBtn" class="reset">Reset display to defaults</button>
     </section>
 
-    <section class="panel tabpanel legendp" id="pLegend" role="tabpanel" data-title="Legend">
-      <div class="lgScroll" tabindex="0" aria-label="Legend">
+    <section class="panel tabpanel legendp" id="pLegend" role="tabpanel" tabindex="0" data-title="Legend">
       <ul class="lg">
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><g class="hands filled" id="lgA"><path d=""/></g></svg><span><b id="lgAText">Real time</b>: the main hands, filled. The digital clock shows this time.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><g class="hands hollow" id="lgB"><path d=""/></g></svg><span><b id="lgBText">Daylight time</b>: dashed outline. Hide them and an inner ring of their hours appears instead.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><path d="M13 2L8 10H18Z" fill="var(--text)" stroke="rgba(0,0,0,0.5)" stroke-width="0.6"/></svg><span>White triangle: the two clocks agree there.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><path d="M13 2L8 10H18Z" fill="#000" stroke="rgba(255,255,255,0.85)" stroke-width="0.8"/></svg><span>Black triangle: the clocks are furthest apart there.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><path d="M2 9Q13 1 24 9" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="3.4" stroke-linecap="round"/><path d="M2 9Q13 1 24 9" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linecap="round"/></svg><span>Progress arc: from the main hour hand to the next triangle.</span></li>
-        <li><svg viewBox="0 0 26 12" aria-hidden="true"><path d="M2 9Q13 1 24 9" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.4" stroke-linecap="round"/><path d="M2 9Q13 1 24 9" fill="none" stroke="var(--text)" stroke-width="1.1" stroke-dasharray="2.2 1.6" stroke-linecap="round"/></svg><span>Since-last arc: thinner and dashed, from the last triangle up to the main hour hand.</span></li>
+        <li><svg viewBox="0 0 26 12" aria-hidden="true"><path d="M2 9Q13 1 24 9" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.4" stroke-linecap="round"/><path d="M2 9Q13 1 24 9" fill="none" stroke="var(--text)" stroke-width="1.1" stroke-dasharray="2.2 1.6" stroke-linecap="round"/></svg><span>Since-last arc: thinner and dashed, from the last triangle up to the main hour hand. It never reaches past the first triangle behind the hand (on the 12-hour dial that can be one a full turn ahead).</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><line x1="2" y1="6" x2="24" y2="6" stroke="var(--text)" stroke-width="1.4"/></svg><span>Solid line: sunrise or sunset for the main hands. Dashed: for the other hands.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><rect x="2" y="1" width="11" height="10" fill="rgba(140,190,255,0.35)"/><rect x="13" y="1" width="11" height="10" fill="rgba(0,0,20,0.6)"/></svg><span>Light and dark fill: sun up and sun down, by the main hands.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="1"/><text x="13" y="6.4" font-size="6" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">60</text></svg><span>Hour hands read the hour face. Minute and second hands read the 0 to 60 ring, millisecond hands the 0 to 1000 ring.</span></li>
-        <li><svg viewBox="0 0 26 12" aria-hidden="true"><line x1="2" y1="6" x2="20" y2="6" stroke="var(--text)" stroke-width="1" stroke-dasharray="2 1.5"/><circle cx="21" cy="6" r="3" fill="var(--text)"/></svg><span>Ruler hands: one each for hours (h), minutes (m), and, when those hands are on, seconds (s) and milliseconds. Drag a knob; whichever ruler you drag snaps to the marks of the ring the pointer is closest to (the hour face, the 0 to 60 ring or the 0 to 1000 ring), so slide in or out for coarser or finer steps. A ruler between marks reads like a real clock hand. Together they set a time on the main clock, from 6 hours ago to 18 hours ahead (the next 12 on the 12-hour dial); the line under the dial and the rate graph's strip say when that is on both clocks. Switching the main hands or the dial keeps the rulers on the same moment.</span></li>
+        <li><svg viewBox="0 0 26 12" aria-hidden="true"><line x1="2" y1="6" x2="20" y2="6" stroke="var(--text)" stroke-width="1" stroke-dasharray="2 1.5"/><circle cx="21" cy="6" r="3" fill="var(--text)"/></svg><span>Ruler hands: one each for hours (h), minutes (m), and, when those hands are on, seconds (s) and milliseconds. Drag a knob; whichever ruler you drag snaps to the marks of the ring the pointer is closest to (the hour face, the 0 to 60 ring or the 0 to 1000 ring), so slide in or out for coarser or finer steps. A ruler between marks reads like a real clock hand. Together they set a time on the main clock, from 6 hours ago to 18 hours ahead (the next 12 on the 12-hour dial); the rate graph's strip says when that is on both clocks. Switching the main hands or the dial keeps the rulers on the same moment.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="1"/><path d="M13 6V1.5" stroke="var(--text)" stroke-width="1.2"/></svg><span>Shading and labels show the next full turn of the main hour hand (12 hours on the 12-hour dial), so the hand drags them along like a curtain: once it passes a label, that label flips to the next time it will reach that spot (PM to AM and back).</span></li>
-        <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="0.8"/><line x1="5" y1="6" x2="21" y2="6" stroke="var(--muted)" stroke-width="0.6"/><line x1="13" y1="0" x2="13" y2="12" stroke="var(--muted)" stroke-width="0.6"/></svg><span>Dial style (Display tab): Unit circle draws the x and y axes and the unit circle, with angles counterclockwise from 3 o'clock in radians and degrees and their (cos, sin) points. Radar draws range rings in hours ahead on the main hand's turn, a sweep that turns with the main second hand, and blips for the coming triangles, nearer the middle the sooner they come.</span></li>
+        <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="0.8"/><line x1="5" y1="6" x2="21" y2="6" stroke="var(--muted)" stroke-width="0.6"/><line x1="13" y1="0" x2="13" y2="12" stroke="var(--muted)" stroke-width="0.6"/></svg><span>Dial style (Display tab): Unit circle draws the x and y axes and the unit circle, with angles counterclockwise from 3 o'clock in radians and degrees and their (cos, sin) points: inner puts it all on the dial's face, outer around the outside of the dial. Radar draws range rings in hours from the main hour hand, a sweep that turns with the fastest main hand on show (milliseconds, seconds or minutes), and a ping for each triangle on the dial: it sits nearer the middle the closer the hour hand is to that triangle (coming up or just passed), lights up as the sweep passes, and fades out by the time the sweep is halfway round.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><defs><linearGradient id="lgBg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2a6fcb"/><stop offset="1" stop-color="#7fb8ee"/></linearGradient></defs><rect x="2" y="1" width="22" height="10" rx="2" fill="url(#lgBg)"/></svg><span>Background (Display tab): Realistic sky follows the sun's colors through the day; each theme's gradient goes through its own night, dawn, day and dusk colors on the same schedule.</span></li>
       </ul>
-      <p class="note">Sunrise is always 6:00 AM and sunset 6:00 PM; the hours between stretch or shrink to fit. With smooth daylight rate on, the clock speeds up and slows down gradually instead of snapping at sunrise and sunset, and still hits 6:00 at both. Real times are in the selected location's time zone. Tap the mini globe or the place name to change location.</p>
-      </div>
+      <h3 class="lgh">The tabs</h3>
+      <ul class="lg tabsd">
+        <li><b>Details</b>: the other clock's time and today's date, day and night length, the real times of sunrise and sunset (always <span class="cn">6:00 AM</span> and <span class="cn">6:00 PM</span> on the daylight clock), and how long one daylight hour lasts right now. Sunrise is always 6:00 AM and sunset 6:00 PM; the hours between stretch or shrink to fit. With smooth daylight rate on, the clock speeds up and slows down gradually instead of snapping at sunrise and sunset, and still hits 6:00 at both. Real times are in the selected location's time zone. Tap the mini globe or the place name to change location.</li>
+        <li><b>Rate</b>: how fast the daylight clock runs compared with real time, over 24 hours from 6 hours ago. Each step is the average speed over 5 real minutes. Hover or tap for a step's details; otherwise the strip under the graph shows the step at the ruler hands (or now, with the rulers off), on both clocks. The faint line is the other rate mode, and the triangles mark where the clocks agree or are furthest apart.</li>
+        <li><b>Display</b>: which clock the main (filled) hands show, the smooth rate, the 12- or 24-hour dial, labels, which hands, lines and arcs are drawn, the ruler hands, label density, theme, background and dial style. Reset puts them all back.</li>
+        <li><b>Legend</b>: this list of what each mark on the dial means.</li>
+      </ul>
     </section>
   </div>
   </div>
@@ -554,9 +587,10 @@
     <h3>Changelog</h3>
     <div class="update-row">
       <button id="updateBtn" type="button">Check for update</button>
-      <span id="updateMsg">Version 9</span>
+      <span id="updateMsg">Version 10</span>
     </div>
     <ul class="log">
+      <li><b>10</b><span>2026-11-05: The since-last arc stops at the first triangle behind the hour hand; radar pings for every triangle on the dial, drawn above the hands, closing in as the hour hand nears them and drifting out as it moves away, fading out by half a sweep, with the sweep following the fastest main hand on show; sunrise/sunset progress at the top middle, next agreement and furthest apart in the bottom corners, and the ruler line gone from under the dial (it is in the rate strip), so the dial is bigger; inner and outer unit-circle dial styles; the legend describes every tab; every tab scrolls inside itself.</span></li>
       <li><b>9</b><span>2026-11-05: Ruler hands keep their moment when you switch the main hands, the dial, the rate or the second/ms hands; whichever ruler you drag snaps to the marks of the ring the pointer is closest to; the rate graph's strip shows the ruler's step (or now's) when not hovered, its step control is gone, and it shows the triangles from the last 6 hours too; a since-last arc from the last triangle to the hour hand; Background (realistic sky or a theme's gradient) and Dial style (plain, unit circle, radar) menus; the location globe zooms (scroll, pinch, + and −) for fine control; the legend scrolls inside its panel.</span></li>
       <li><b>8</b><span>2026-11-04: The dial shows the hour hand's next full turn: once the hand passes a 12-hour label it flips AM/PM, and the shading, sun lines, inner ring, triangles and ruler follow the same window.</span></li>
       <li><b>7</b><span>2026-11-04: Day/night shading follows the main hour hand like a curtain: each spot is lit if the sun is up when the hand points there, on both dials, for real and daylight hands, including polar day and night; sun lines and 12-hour labels follow the same rule, with a faint seam opposite the hand.</span></li>
@@ -783,7 +817,7 @@
     { name: 'Mono', norm: '#ffffff', real: '#9aa6bd',
       sky: { night: ['#0b0c10', '#17191f'], dawn: ['#2a2c33', '#6d717c'], day: ['#3d424d', '#7b818e'], dusk: ['#24262c', '#5e626c'] } }
   ];
-  const DIAL_STYLES = ['plain', 'unit', 'radar'];
+  const DIAL_STYLES = ['plain', 'inner', 'outer', 'radar'];
   // Display defaults: real time is the filled (main) set, hour and minute
   // hands only, a 24-hour dial with AM/PM labels, the Phosphor theme, and the
   // dashboard layout on wide screens. "Reset display to defaults" restores these.
@@ -809,7 +843,9 @@
     if ([1, 2, 3, 4].includes(s.density)) o.density = s.density;
     // Background: -1 is the realistic sky, otherwise a theme's gradient.
     if (s.bg === -1 || (Number.isInteger(s.bg) && THEMES[s.bg])) o.bg = s.bg;
-    if (DIAL_STYLES.includes(s.dialStyle)) o.dialStyle = s.dialStyle;
+    // Version 9's single unit-circle style is now the inner one.
+    if (s.dialStyle === 'unit') o.dialStyle = 'inner';
+    else if (DIAL_STYLES.includes(s.dialStyle)) o.dialStyle = s.dialStyle;
     return o;
   }
   // Panel state: which tab is open, whether it is collapsed. The graph's step is fixed.
@@ -952,10 +988,13 @@
     const svg = $('dial'), hub = svg.lastElementChild;
     svg.insertBefore($(nf ? 'setNorm' : 'setReal'), hub);
     svg.insertBefore($(nf ? 'setReal' : 'setNorm'), hub);
+    svg.insertBefore($('radarBlips'), hub);
     svg.insertBefore($('ruler'), hub);
     // The millisecond ring only shows with its hands; the dial grows to fit it.
     $('msRing').style.display = showMs ? '' : 'none';
-    svg.setAttribute('viewBox', showMs ? '-26 -26 252 252' : '-13 -13 226 226');
+    // The outer unit circle needs room for its labels outside the rings.
+    const ext = dialStyle === 'outer' ? (showMs ? 150 : 136) : (showMs ? 126 : 113);
+    svg.setAttribute('viewBox', `${100 - ext} ${100 - ext} ${2 * ext} ${2 * ext}`);
     $('ruler').style.display = showRuler ? '' : 'none';
     svg.classList.toggle('ruling', showRuler);
     $('otherK').textContent = nf ? 'Real time' : 'Daylight time';
@@ -1010,7 +1049,7 @@
     if (!confirm('Reset all display settings to their defaults? Your location stays.')) return;
     setDisplay({}); applyTheme(theme); drawTicks(); events = null; save(); applyHands(); applyLayout();
   };
-  $('dialSel').onchange = () => { dialStyle = $('dialSel').value; save(); drawDialBg(); };
+  $('dialSel').onchange = () => { dialStyle = $('dialSel').value; save(); applyHands(); };
   $('bgSel').onchange = () => { bg = +$('bgSel').value; save(); showBgSwatch(); };
 
   // ---------- Themes ----------
@@ -1153,9 +1192,13 @@
     G.key = null;
   }
   const apartText = ev => `daylight time is ${fmtDur(Math.abs(ev.d) * 3600000)} ${ev.d > 0 ? 'ahead' : 'behind'}`;
+  // The triangles on the dial: those in the main hour hand's next full turn.
+  function notchList(now) {
+    const F0 = filledUnwrapped(now), face = dial12 ? 12 : 24;
+    return events ? events.list.filter(ev => ev.t > now && ev.F - F0 < face) : [];
+  }
   function drawNotches(now) {
-    const F0 = filledUnwrapped(now);
-    $('notches').innerHTML = events.list.filter(ev => ev.t > now && ev.t <= now + DAY && (!dial12 || ev.F - F0 < 12)).map(ev => {
+    $('notches').innerHTML = notchList(now).map(ev => {
       const deg = hourDeg(ev.hour), [tx, ty] = pt(deg, 91.2), [ax, ay] = pt(deg - 2.6, 96.4), [bx, by] = pt(deg + 2.6, 96.4);
       const agree = ev.type === 'agree';
       const title = agree ? `The clocks agree at ${fmtReal(ev.t)}` : `Furthest apart at ${fmtReal(ev.t)}: ${apartText(ev)}`;
@@ -1180,15 +1223,25 @@
     const g = $('arcPrev'), F0 = filledUnwrapped(now);
     let last = null;
     if (showArcPrev && events) for (const ev of events.list) { if (ev.t <= now) last = ev; else break; }
-    const back = last ? F0 - last.F : 0;
-    if (!last || back <= 0 || back >= (dial12 ? 12 : 24)) { g.style.display = 'none'; return; }
+    let back = last ? F0 - last.F : 0, type = last && last.type, title;
+    const face = dial12 ? 12 : 24;
+    if (!last || back <= 0 || back >= face) { g.style.display = 'none'; return; }
+    // The dial shows the hand's next full turn, so the spot just behind the
+    // hand stands for a full turn ahead. When a triangle shows up there
+    // before the last one is reached (often on the 12-hour dial), stop at it.
+    const N = notchList(now), far = N.length ? N[N.length - 1] : null;
+    if (far && face - (far.F - F0) < back) {
+      back = face - (far.F - F0); type = far.type;
+      title = `Back to the triangle a full turn ahead: ${far.type === 'agree' ? 'the clocks agree' : 'furthest apart'} at ${fmtReal(far.t)}`;
+    }
+    if (back <= 0) { g.style.display = 'none'; return; }
     g.style.display = '';
-    g.setAttribute('class', last.type);
+    g.setAttribute('class', type);
     const R = 94.6, a1 = hourDeg(vNow), sweep = Math.min(359.5, back * degPerHour());
     const [x0, y0] = pt(a1 - sweep, R), [x1, y1] = pt(a1, R);
     const d = `M${f2(x0)} ${f2(y0)}A${R} ${R} 0 ${sweep > 180 ? 1 : 0} 1 ${f2(x1)} ${f2(y1)}`;
     $('arcPrevCase').setAttribute('d', d); $('arcPrevPath').setAttribute('d', d);
-    const title = `Since ${last.type === 'agree' ? 'the clocks agreed' : 'they were furthest apart'} at ${fmtReal(last.t)}, ${fmtDur(now - last.t)} ago`;
+    title = title || `Since ${last.type === 'agree' ? 'the clocks agreed' : 'they were furthest apart'} at ${fmtReal(last.t)}, ${fmtDur(now - last.t)} ago`;
     if (g._t !== title) { g._t = title; g.querySelector('title') ? g.querySelector('title').textContent = title : g.insertAdjacentHTML('beforeend', `<title>${title}</title>`); }
   }
 
@@ -1317,13 +1370,16 @@
   }
 
   // ---------- Dial styles ----------
-  // Plain: nothing extra. Unit circle: the x and y axes and the unit circle
-  // with its standard angles, counterclockwise from 3 o'clock in radians and
-  // degrees, and their (cos, sin) points. Radar: range rings, bearing lines
-  // and a sweep that turns once a minute with the main second hand; the
-  // rings count hours ahead on the main hand's turn, and blips show the
-  // coming triangles at their direction and distance in time, glowing as
-  // the sweep passes them.
+  // Plain: nothing extra. Unit circle, inner: the x and y axes and the unit
+  // circle on the dial's face, with its standard angles counterclockwise
+  // from 3 o'clock in radians and degrees, and their (cos, sin) points.
+  // Unit circle, outer: the same, drawn around the outside of the dial (the
+  // dial shrinks a little to make room). Radar: range rings, bearing lines
+  // and a sweep that turns with the fastest main hand on show; the rings
+  // count hours between the main hour hand and a triangle, and each
+  // triangle on the dial has a ping that closes in on the middle as the hand
+  // nears it and drifts back out as the hand moves away, lighting up as the
+  // sweep passes and gone by the time the sweep is halfway round.
   const UNIT_R = 44;
   const RADS = { 0: '0', 30: 'π/6', 45: 'π/4', 60: 'π/3', 90: 'π/2', 120: '2π/3', 135: '3π/4', 150: '5π/6', 180: 'π',
     210: '7π/6', 225: '5π/4', 240: '4π/3', 270: '3π/2', 300: '5π/3', 315: '7π/4', 330: '11π/6' };
@@ -1338,28 +1394,51 @@
   const RADAR_IN = 14, RADAR_SPAN = 56;
   function drawDialBg() {
     const g = $('dialBg');
-    if (dialStyle === 'unit') {
-      let o = `<line class="ax" x1="10" y1="100" x2="190" y2="100"/><line class="ax" x1="100" y1="10" x2="100" y2="190"/>` +
-        `<circle class="uc" cx="100" cy="100" r="${UNIT_R}"/>`;
+    g.setAttribute('class', dialStyle);
+    $('radarBlips').innerHTML = ''; radarBlips = [];
+    if (dialStyle === 'inner' || dialStyle === 'outer') {
+      const out = dialStyle === 'outer';
+      // Outer: the circle sits just outside the 60 ring's labels (or the
+      // 1000 ring's), and the labels go further out from there.
+      const R = out ? (showMs ? 126.5 : 112.5) : UNIT_R;
+      const rRad = R + 6, rDeg = R - 5, rCo = R - 15;
+      let o = out
+        ? [0, 90, 180, 270].map(d => { const [x0, y0] = pt(d, 93), [x1, y1] = pt(d, R + 2.5); return `<line class="ax" x1="${f2(x0)}" y1="${f2(y0)}" x2="${f2(x1)}" y2="${f2(y1)}"/>`; }).join('')
+        : `<line class="ax" x1="10" y1="100" x2="190" y2="100"/><line class="ax" x1="100" y1="10" x2="100" y2="190"/>`;
+      o += `<circle class="uc" cx="100" cy="100" r="${R}"/>`;
       for (const th of Object.keys(RADS).map(Number)) {
         const deg = 90 - th, axis = th % 90 === 0;
-        const [x0, y0] = pt(deg, 6), [x1, y1] = pt(deg, 58), [px, py] = pt(deg, UNIT_R);
-        if (!axis) o += `<line class="fa" x1="${f2(x0)}" y1="${f2(y0)}" x2="${f2(x1)}" y2="${f2(y1)}"/>`;
-        // Radians just outside the circle, degrees just inside, and the
-        // (cos, sin) point for the axes and the 45° angles further in.
-        const [lx, ly] = pt(deg, UNIT_R + 6), [dx, dy] = pt(deg, UNIT_R - 5), [cx, cy] = pt(deg, UNIT_R - 15);
-        o += `<circle cx="${f2(px)}" cy="${f2(py)}" r="1" fill="color-mix(in srgb, var(--text) 65%, transparent)"/>` +
-          `<text class="lb" x="${f2(lx)}" y="${f2(ly)}">${RADS[th]}</text>` +
+        const [px, py] = pt(deg, R);
+        if (!axis) {
+          const [x0, y0] = out ? pt(deg, R - 3) : pt(deg, 6), [x1, y1] = out ? pt(deg, R + 2) : pt(deg, 58);
+          o += `<line class="fa" x1="${f2(x0)}" y1="${f2(y0)}" x2="${f2(x1)}" y2="${f2(y1)}"/>`;
+        }
+        o += `<circle cx="${f2(px)}" cy="${f2(py)}" r="1" fill="color-mix(in srgb, var(--text) 65%, transparent)"/>`;
+        if (out) {
+          // Outside the dial: radians, degrees and (cos, sin) stacked in a
+          // small block, pushed out far enough that the block clears the rings.
+          const co = th % 45 === 0 ? `(${TRIG(Math.cos(th * RAD))}, ${TRIG(Math.sin(th * RAD))})` : '';
+          const w = Math.max(RADS[th].length * 2.9, co.length * 1.9, 9), h = co ? 12.6 : 8.6;
+          const [bx, by] = pt(deg, R + 3 + Math.abs(Math.sin(deg * RAD)) * w / 2 + Math.abs(Math.cos(deg * RAD)) * h / 2);
+          const top = by - h / 2;
+          o += `<text class="lb" x="${f2(bx)}" y="${f2(top + 2.5)}">${RADS[th]}</text>` +
+            `<text class="co" x="${f2(bx)}" y="${f2(top + 6.6)}">${th}°</text>` +
+            (co ? `<text class="co" x="${f2(bx)}" y="${f2(top + 10.6)}">${co}</text>` : '');
+          continue;
+        }
+        const [lx, ly] = pt(deg, rRad), [dx, dy] = pt(deg, rDeg), [cx, cy] = pt(deg, rCo);
+        o += `<text class="lb" x="${f2(lx)}" y="${f2(ly)}">${RADS[th]}</text>` +
           `<text class="co" x="${f2(dx)}" y="${f2(dy)}">${th}°</text>` +
           (th % 45 === 0 ? `<text class="co" x="${f2(cx)}" y="${f2(cy)}">(${TRIG(Math.cos(th * RAD))}, ${TRIG(Math.sin(th * RAD))})</text>` : '');
       }
       g.innerHTML = o;
     } else if (dialStyle === 'radar') {
-      const face = dial12 ? 12 : 24;
+      // Rings: hours between the main hour hand and a ping, up to half a turn.
+      const half = (dial12 ? 12 : 24) / 2;
       let o = '';
       for (let i = 1; i <= 4; i++) {
         const r = RADAR_IN + RADAR_SPAN * i / 4, [lx, ly] = pt(45, r + 2.4);
-        o += `<circle class="rr" cx="100" cy="100" r="${r}"/><text class="rl" x="${f2(lx)}" y="${f2(ly)}">${face * i / 4}h</text>`;
+        o += `<circle class="rr" cx="100" cy="100" r="${r}"/><text class="rl" x="${f2(lx)}" y="${f2(ly)}">${+(half * i / 4).toFixed(1)}h</text>`;
       }
       for (let d = 0; d < 360; d += 30) {
         const [x0, y0] = pt(d, RADAR_IN), [x1, y1] = pt(d, 92);
@@ -1373,31 +1452,46 @@
         sw += `<path class="sw" d="M100 100L${f2(x0)} ${f2(y0)}A92 92 0 0 1 ${f2(x1)} ${f2(y1)}Z" fill-opacity="${(0.2 * (1 - i / N)).toFixed(3)}"/>`;
       }
       sw += `<line x1="100" y1="100" x2="100" y2="8" stroke="var(--ink)" stroke-opacity="0.55" stroke-width="0.6"/>`;
-      g.innerHTML = o + `<g id="radarBlips"></g><g id="sweep">${sw}</g>`;
-      radarBlipsAt = 0;
+      g.innerHTML = o + `<g id="sweep">${sw}</g>`;
+      radarKey = null;
     } else g.innerHTML = '';
   }
-  let radarBlipsAt = 0, radarBlips = [];
+  let radarKey = null, radarBlips = [];
+  // The sweep follows the fastest main hand on show: milliseconds, seconds or minutes.
+  function sweepDegAt(now, sFloat, mFloat, wall) {
+    const nf = filled === 'norm';
+    if (showMs) return nf ? mod(sFloat, 1) * 360 : (wall % 1000) * 0.36;
+    if (showSec) return nf ? sFloat * 6 : (wall % 60000) / 1000 * 6;
+    return nf ? mFloat * 6 : (wall % 3600000) / 60000 * 6;
+  }
   function radarFrame(now, sweepDeg) {
     const sw = $('sweep');
     if (!sw) return;
     sw.setAttribute('transform', `rotate(${sweepDeg.toFixed(2)} 100 100)`);
-    // Place the blips once a second; fade them every frame.
-    if (now - radarBlipsAt > 1000 && events) {
-      radarBlipsAt = now;
-      const F0 = filledUnwrapped(now), face = dial12 ? 12 : 24;
-      radarBlips = events.list.filter(ev => ev.t > now && ev.F - F0 < face).map(ev => {
-        const deg = hourDeg(vNow + ev.F - F0), r = RADAR_IN + RADAR_SPAN * (ev.F - F0) / face, [x, y] = pt(deg, r);
-        return { deg, x, y, agree: ev.type === 'agree' };
-      });
+    // One ping per triangle on the dial, the same ones drawn at the rim.
+    const list = notchList(now), key = list.map(ev => ev.type + ev.t).join() + ':' + dial12;
+    if (key !== radarKey) {
+      radarKey = key;
+      radarBlips = list.map(ev => ({ deg: hourDeg(ev.hour), agree: ev.type === 'agree' }));
       $('radarBlips').innerHTML = radarBlips.map(b =>
-        `<circle cx="${f2(b.x)}" cy="${f2(b.y)}" r="2.1" fill="${b.agree ? 'var(--text)' : '#000'}" stroke="${b.agree ? 'var(--ink)' : 'rgba(255,255,255,0.85)'}" stroke-width="0.5"/>`).join('');
+        `<g><circle class="pr" r="2.1"/><circle r="2.1" fill="${b.agree ? 'var(--text)' : '#000'}" stroke="${b.agree ? 'var(--ink)' : 'rgba(255,255,255,0.85)'}" stroke-width="0.5"/></g>`).join('');
     }
-    const els = $('radarBlips').children;
+    const els = $('radarBlips').children, hand = hourDeg(vNow);
     radarBlips.forEach((b, i) => {
-      // Brightest just after the sweep passes, fading over most of a turn.
-      const behind = mod(sweepDeg - b.deg, 360);
-      if (els[i]) els[i].setAttribute('opacity', (0.25 + 0.75 * Math.max(0, 1 - behind / 300)).toFixed(2));
+      const el = els[i];
+      if (!el) return;
+      // Distance from the main hour hand, either way round: in toward the
+      // middle as the hand closes in, back out as it moves away.
+      const ang = mod(b.deg - hand, 360), dist = Math.min(ang, 360 - ang) / 180;
+      const [x, y] = pt(b.deg, RADAR_IN + RADAR_SPAN * dist);
+      // Brightest just as the sweep passes, gone by the time it is halfway round.
+      const behind = mod(sweepDeg - b.deg, 360), life = Math.max(0, 1 - behind / 180);
+      el.setAttribute('transform', `translate(${f2(x)} ${f2(y)})`);
+      el.setAttribute('opacity', life.toFixed(3));
+      // A ring that spreads out from the ping as the sweep goes over it.
+      const ring = el.firstElementChild, k = Math.min(1, behind / 90);
+      ring.setAttribute('r', (2.1 + 5 * k).toFixed(2));
+      ring.setAttribute('stroke-opacity', (0.8 * (1 - k)).toFixed(3));
     });
   }
 
@@ -1481,39 +1575,14 @@
       rulers[k] = k === 'h' ? (dial12 ? v * 30 : (v - 12) * 15) : k === 'ms' ? v * 0.36 : v * 6;
     });
   }
-  // A time of day given in ms since midnight, to the second or millisecond.
-  const fmtClockMs = (msDay, sec, msOn) => {
-    const v = mod(Math.round(msDay), DAY);
-    let txt = fmtHour(v / 3600000, sec || msOn);
-    if (msOn) txt = txt.replace(/(:\d\d)( [AP]M)?$/, (_, a, b) => `${a}.${String(v % 1000).padStart(3, '0')}${b || ''}`);
-    return txt;
-  };
-  function sunWord(t) {
-    const r = compute(t, loc.lat, loc.lon);
-    if (!r) return '';
-    // Within a couple of minutes of a sun event, name it.
-    if (Math.min(Math.abs(t - r.start), Math.abs(t - r.end)) < 120000)
-      return (Math.abs(t - r.start) < 120000) === (r.phase === 'day') ? '☀ sunrise' : '☾ sunset';
-    return r.phase === 'day' ? '☀ sun up' : '☾ sun down';
-  }
-  const whenText = (t, now) => Math.abs(t - now) < 1000 ? 'now' : t > now ? `in ${fmtDurS(t - now)}` : `${fmtDurS(now - t)} ago`;
-  // Like fmtDur, but with seconds when under an hour away.
-  function fmtDurS(ms) {
-    const s = Math.round(Math.abs(ms) / 1000);
-    if (s >= 3600) return fmtDur(ms);
-    return s >= 60 ? `${Math.floor(s / 60)}m ${s % 60}s` : `${s}s`;
-  }
+  // The rulers' moment is shown in the rate graph's strip; this keeps it
+  // current and redraws the graph when it moves.
   function rulerInfo(now) {
     rulerShownAt = now;
-    const out = $('rulerInfo');
-    if (!showRuler || !loc) { out.textContent = ''; rulerT = null; return; }
-    const t = rulerTime(now), nf = filled === 'norm';
+    if (!showRuler || !loc) { rulerT = null; return; }
+    const t = rulerTime(now);
     if (rulerT === null || Math.abs(t - rulerT) > 500) drawGraphSoon();
     rulerT = t;
-    const msOn = showSec && showMs;
-    const real = cR(`${fmtClockMs(t + zoneOffset(t), showSec, msOn)} real`);
-    const day = cN(`${fmtClockMs(normAt(t) * 3600000, showSec, msOn)} daylight`);
-    out.innerHTML = `Ruler · ${nf ? day + ' = ' + real : real + ' = ' + day} · ${whenText(t, now)} · ${sunWord(t)}`;
   }
   (() => {
     const svg = $('dial');
@@ -1794,7 +1863,7 @@
     if (!deco || deco.key !== decoKey()) drawDeco(now, r);
     if (!inner || inner.key !== innerKey(now)) drawInner(now);
     drawArc(now); drawArcPrev(now);
-    if (dialStyle === 'radar') radarFrame(now, filled === 'norm' ? sFloat * 6 : (wall % 60000) / 1000 * 6);
+    if (dialStyle === 'radar') radarFrame(now, sweepDegAt(now, sFloat, mFloat, wall));
     if (now - rulerShownAt > 250) rulerInfo(now);
     if (now - G.drawnAt > 15000) drawGraphSoon();
 
@@ -1805,18 +1874,18 @@
 
     // Phase + progress
     const isDay = r.phase === 'day';
-    $('phase').textContent = `${isDay ? 'Daytime' : 'Night'} · ${Math.floor(f * 100)}% of the way to ${isDay ? 'sunset' : 'sunrise'}`;
+    setHTML('phase', `<b>${isDay ? 'Daytime' : 'Night'}</b> · ${Math.floor(f * 100)}% of the way to ${isDay ? 'sunset' : 'sunrise'}`);
     $('bar').style.width = (f * 100).toFixed(2) + '%';
     $('bar').style.background = isDay ? 'var(--sun)' : 'var(--moon)';
     const nextA = events.list.find(ev => ev.type === 'agree' && ev.t > now);
     const nextB = events.list.find(ev => ev.type === 'apart' && ev.t > now);
     // Both clocks read the same at a match, so give it in both colors' order
     // of the main hands; furthest apart gives each clock's time.
-    const atBoth = t => filled === 'norm' ? `${cN(fmtHour(normAt(t)))} daylight / ${cR(fmtReal(t))} real` : `${cR(fmtReal(t))} real / ${cN(fmtHour(normAt(t)))} daylight`;
+    const atBoth = t => filled === 'norm' ? `${cN(fmtHour(normAt(t)))} daylight · ${cR(fmtReal(t))} real` : `${cR(fmtReal(t))} real · ${cN(fmtHour(normAt(t)))} daylight`;
     setHTML('match', nextA
-      ? `▲ The clocks agree next at ${filled === 'norm' ? cN(fmtHour(normAt(nextA.t))) : cR(fmtReal(nextA.t))}, in ${fmtDur(nextA.t - now)}`
-      : '▲ The clocks don\'t agree at any point in the next day');
-    setHTML('apart', nextB ? `▼ Furthest apart next at ${atBoth(nextB.t)}, in ${fmtDur(nextB.t - now)}: ${apartText(nextB)}` : '');
+      ? `<span>▲ Clocks agree next</span><span>at ${filled === 'norm' ? cN(fmtHour(normAt(nextA.t))) : cR(fmtReal(nextA.t))}</span><span>in ${fmtDur(nextA.t - now)}</span>`
+      : '<span>▲ The clocks don\'t agree</span><span>in the next day</span>');
+    setHTML('apart', nextB ? `<span>▼ Furthest apart next</span><span>at ${atBoth(nextB.t)}</span><span>in ${fmtDur(nextB.t - now)} · daylight ${fmtDur(Math.abs(nextB.d) * 3600000)} ${nextB.d > 0 ? 'ahead' : 'behind'}</span>` : '');
 
     // Cells
     if (filled === 'norm') {
@@ -2401,7 +2470,7 @@
   // ---------- Updates ----------
   // Fetches the latest service worker; a new one installs, takes over and
   // the page reloads into the new version.
-  const APP_VERSION = 9;
+  const APP_VERSION = 10;
   $('updateBtn').onclick = async () => {
     const msg = $('updateMsg');
     const reg = 'serviceWorker' in navigator && window.isSecureContext && await navigator.serviceWorker.getRegistration().catch(() => null);
