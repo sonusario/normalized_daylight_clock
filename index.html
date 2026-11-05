@@ -124,7 +124,10 @@
   .no-ms path.ms { display: none; }
   .hands.filled path.ms { fill: color-mix(in srgb, currentColor 52%, #000); stroke: rgba(255,255,255,0.3); stroke-width: 0.3; }
   .hands.hollow path.ms { stroke-width: 0.5; stroke-dasharray: 1.4 1; stroke: color-mix(in srgb, currentColor 52%, #000); fill: none; }
-  svg.dial.ruling { touch-action: none; cursor: crosshair; }
+  /* With the rulers on, only the outer band of the dial (and the knobs)
+     grabs a ruler; the rest of the face scrolls the page as usual. */
+  svg.dial.ruling { touch-action: manipulation; }
+  svg.dial.ruling.grab { cursor: crosshair; }
   #ruler line { stroke: var(--text); stroke-dasharray: 2 1.5; stroke-linecap: round; }
   #ruler circle { fill: var(--text); fill-opacity: 0.92; stroke: rgba(0,0,0,0.45); stroke-width: 0.6; cursor: grab; }
   #ruler text { fill: #111; font-weight: 700; pointer-events: none; }
@@ -522,7 +525,7 @@
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><line x1="2" y1="6" x2="24" y2="6" stroke="var(--text)" stroke-width="1.4"/></svg><span>Solid line: sunrise or sunset for the main hands. Dashed: for the other hands.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><rect x="2" y="1" width="11" height="10" fill="rgba(140,190,255,0.35)"/><rect x="13" y="1" width="11" height="10" fill="rgba(0,0,20,0.6)"/></svg><span>Light and dark fill: sun up and sun down, by the main hands.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="1"/><text x="13" y="6.4" font-size="6" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">60</text></svg><span>Hour hands read the hour face. Minute and second hands read the 0 to 60 ring, millisecond hands the 0 to 1000 ring.</span></li>
-        <li><svg viewBox="0 0 26 12" aria-hidden="true"><line x1="2" y1="6" x2="20" y2="6" stroke="var(--text)" stroke-width="1" stroke-dasharray="2 1.5"/><circle cx="21" cy="6" r="3" fill="var(--text)"/></svg><span>Ruler hands: one each for hours (h), minutes (m), and, when those hands are on, seconds (s) and milliseconds. Drag a knob; whichever ruler you drag snaps to the marks of the ring the pointer is closest to (the hour face, the 0 to 60 ring or the 0 to 1000 ring), so slide in or out for coarser or finer steps. A ruler between marks reads like a real clock hand. Together they set a time on the main clock, from 6 hours ago to 18 hours ahead (the next 12 on the 12-hour dial); the rate graph's strip says when that is on both clocks. Switching the main hands or the dial keeps the rulers on the same moment.</span></li>
+        <li><svg viewBox="0 0 26 12" aria-hidden="true"><line x1="2" y1="6" x2="20" y2="6" stroke="var(--text)" stroke-width="1" stroke-dasharray="2 1.5"/><circle cx="21" cy="6" r="3" fill="var(--text)"/></svg><span>Ruler hands: one each for hours (h), minutes (m), and, when those hands are on, seconds (s) and milliseconds. Drag a knob, or drag in the band around the edge of the dial (the rest of the face is left alone so the page scrolls); whichever ruler you drag snaps to the marks of the ring the pointer is closest to (the hour face, the 0 to 60 ring or the 0 to 1000 ring), so slide in or out for coarser or finer steps. A ruler between marks reads like a real clock hand. Together they set a time on the main clock, from 6 hours ago to 18 hours ahead (the next 12 on the 12-hour dial); the rate graph's strip says when that is on both clocks. Switching the main hands or the dial keeps the rulers on the same moment.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="1"/><path d="M13 6V1.5" stroke="var(--text)" stroke-width="1.2"/></svg><span>Shading and labels show the next full turn of the main hour hand (12 hours on the 12-hour dial), so the hand drags them along like a curtain: once it passes a label, that label flips to the next time it will reach that spot (PM to AM and back).</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="13" cy="6" r="5" fill="none" stroke="var(--muted)" stroke-width="0.8"/><line x1="5" y1="6" x2="21" y2="6" stroke="var(--muted)" stroke-width="0.6"/><line x1="13" y1="0" x2="13" y2="12" stroke="var(--muted)" stroke-width="0.6"/></svg><span>Dial style (Display tab): Unit circle draws the x and y axes and the unit circle, with angles counterclockwise from 3 o'clock in radians and degrees and their (cos, sin) points: inner puts it all on the dial's face, outer around the outside of the dial. Radar draws range rings in hours from the main hour hand, a sweep that turns with the fastest main hand on show (milliseconds, seconds or minutes), and a ping for each triangle on the dial: it sits nearer the middle the closer the hour hand is to that triangle (coming up or just passed), lights up as the sweep passes, and fades out by the time the sweep is halfway round.</span></li>
         <li><svg viewBox="0 0 26 12" aria-hidden="true"><defs><linearGradient id="lgBg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2a6fcb"/><stop offset="1" stop-color="#7fb8ee"/></linearGradient></defs><rect x="2" y="1" width="22" height="10" rx="2" fill="url(#lgBg)"/></svg><span>Background (Display tab): Realistic sky follows the sun's colors through the day; each theme's gradient goes through its own night, dawn, day and dusk colors on the same schedule.</span></li>
@@ -587,9 +590,10 @@
     <h3>Changelog</h3>
     <div class="update-row">
       <button id="updateBtn" type="button">Check for update</button>
-      <span id="updateMsg">Version 10</span>
+      <span id="updateMsg">Version 11</span>
     </div>
     <ul class="log">
+      <li><b>11</b><span>2026-11-05: Ruler hands only grab from the band around the edge of the dial or right on a knob; the rest of the face is a dead zone, so scrolling on a phone no longer moves them by accident.</span></li>
       <li><b>10</b><span>2026-11-05: The since-last arc stops at the first triangle behind the hour hand; radar pings for every triangle on the dial, drawn above the hands, closing in as the hour hand nears them and drifting out as it moves away, fading out by half a sweep, with the sweep following the fastest main hand on show; sunrise/sunset progress at the top middle, next agreement and furthest apart in the bottom corners, and the ruler line gone from under the dial (it is in the rate strip), so the dial is bigger; inner and outer unit-circle dial styles; the legend describes every tab; every tab scrolls inside itself.</span></li>
       <li><b>9</b><span>2026-11-05: Ruler hands keep their moment when you switch the main hands, the dial, the rate or the second/ms hands; whichever ruler you drag snaps to the marks of the ring the pointer is closest to; the rate graph's strip shows the ruler's step (or now's) when not hovered, its step control is gone, and it shows the triangles from the last 6 hours too; a since-last arc from the last triangle to the hour hand; Background (realistic sky or a theme's gradient) and Dial style (plain, unit circle, radar) menus; the location globe zooms (scroll, pinch, + and −) for fine control; the legend scrolls inside its panel.</span></li>
       <li><b>8</b><span>2026-11-04: The dial shows the hour hand's next full turn: once the hand passes a 12-hour label it flips AM/PM, and the shading, sun lines, inner ring, triangles and ruler follow the same window.</span></li>
@@ -1592,18 +1596,23 @@
       const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
       return { dx: p.x - 100, dy: 100 - p.y };
     };
-    // Which ruler a press grabs: the nearest knob, or else the one whose ring
-    // the press is on.
+    // Which ruler a press grabs, if any: a knob pressed right on it, or else
+    // the ruler whose ring the press is on, but only in the outer band from
+    // just inside the face's rim outward. Anywhere else on the face is a
+    // dead zone, so a finger scrolling the page over the dial moves nothing.
+    const GRAB_R = 88;
     const pick = ({ dx, dy }) => {
-      let best = null, bd = 14;
-      for (const [k, [, kr]] of Object.entries(RULERS)) {
+      let best = null, bd = Infinity;
+      for (const [k, [, kr, size]] of Object.entries(RULERS)) {
         if (!rulerOn(k)) continue;
+        // A knob counts only when pressed on (its size plus a little slack).
         const a = rulers[k] * RAD, d = Math.hypot(dx - kr * Math.sin(a), dy - kr * Math.cos(a));
-        if (d < bd) { bd = d; best = k; }
+        if (d < size + 1.5 && d < bd) { bd = d; best = k; }
       }
       if (best) return best;
       const rad = Math.hypot(dx, dy);
-      return rad < 74 ? 'h' : rad < 94 ? 'm' : rulerOn('ms') && rad >= 109 ? 'ms' : rulerOn('s') ? 's' : 'm';
+      if (rad < GRAB_R) return null;
+      return rad < 94 ? 'm' : rulerOn('ms') && rad >= 109 ? 'ms' : rulerOn('s') ? 's' : 'm';
     };
     // Snap to the marks of the ring the pointer is closest to right now.
     const aim = p => {
@@ -1614,11 +1623,20 @@
     };
     svg.addEventListener('pointerdown', e => {
       if (!showRuler) return;
-      const p = where(e);
-      if (!p) return;
-      rulerDrag = pick(p); svg.setPointerCapture(e.pointerId); aim(p); e.preventDefault();
+      const p = where(e), k = p && pick(p);
+      if (!k) return;
+      rulerDrag = k; svg.setPointerCapture(e.pointerId); aim(p); e.preventDefault();
     });
-    svg.addEventListener('pointermove', e => { if (rulerDrag) { const p = where(e); if (p) aim(p); } });
+    // A touch that starts on a grab spot is a drag, not a scroll.
+    svg.addEventListener('touchstart', e => {
+      if (!showRuler || e.touches.length !== 1) return;
+      const p = where(e.touches[0]);
+      if (p && pick(p)) e.preventDefault();
+    }, { passive: false });
+    svg.addEventListener('pointermove', e => {
+      if (rulerDrag) { const p = where(e); if (p) aim(p); return; }
+      if (showRuler && e.pointerType === 'mouse') { const p = where(e); svg.classList.toggle('grab', !!(p && pick(p))); }
+    });
     const stop = () => { if (rulerDrag) { rulerDrag = null; rulerRing = null; placeRuler(); save(); } };
     svg.addEventListener('pointerup', stop);
     svg.addEventListener('pointercancel', stop);
@@ -2470,7 +2488,7 @@
   // ---------- Updates ----------
   // Fetches the latest service worker; a new one installs, takes over and
   // the page reloads into the new version.
-  const APP_VERSION = 10;
+  const APP_VERSION = 11;
   $('updateBtn').onclick = async () => {
     const msg = $('updateMsg');
     const reg = 'serviceWorker' in navigator && window.isSecureContext && await navigator.serviceWorker.getRegistration().catch(() => null);
