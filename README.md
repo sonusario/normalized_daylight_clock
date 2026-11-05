@@ -1,6 +1,6 @@
 # Daylight Clock
 
-**Live:** https://sonusario.github.io/daylight_normalized_clock/
+**Live:** https://sonusario.github.io/normalized_daylight_clock/
 
 A clock where sunrise is always 6:00 AM and sunset is always 6:00 PM. The hours in between stretch or shrink to fit the real day, so a winter daylight hour is short and a summer one is long.
 
