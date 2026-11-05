@@ -1,6 +1,6 @@
 // Daylight Clock service worker: caches the app so it opens and runs offline.
 // Bump VERSION whenever any file below changes so installed copies update.
-const VERSION = 'daylight-v8';
+const VERSION = 'daylight-v9';
 const FILES = [
   './',
   'index.html',
