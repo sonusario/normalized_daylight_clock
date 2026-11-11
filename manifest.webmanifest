@@ -2,7 +2,7 @@
   "name": "Daylight Clock",
   "short_name": "Daylight",
   "description": "A clock where sunrise is always 6:00 AM and sunset is always 6:00 PM.",
-  "id": "./",
+  "id": "/normalized_daylight_clock/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

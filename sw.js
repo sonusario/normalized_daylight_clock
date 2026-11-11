@@ -1,6 +1,6 @@
 // Daylight Clock service worker: caches the app so it opens and runs offline.
 // Bump VERSION whenever any file below changes so installed copies update.
-const VERSION = 'daylight-v12';
+const VERSION = 'daylight-v13';
 const FILES = [
   './',
   'index.html',
@@ -20,8 +20,9 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
+  // Only this app's old caches: every app on this domain shares one Cache Storage.
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k.startsWith('daylight-') && k !== VERSION).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

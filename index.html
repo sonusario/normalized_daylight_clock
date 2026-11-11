@@ -593,6 +593,7 @@
       <span id="updateMsg">Version 12</span>
     </div>
     <ul class="log">
+      <li><b>13</b><span>2026-11-11: The app has its own install identity, so it no longer looks already installed because another copy of the clock on this site was, and it no longer clears the offline copies of the other apps on sonusario.github.io.</span></li>
       <li><b>12</b><span>2026-11-06: The ruler grab area is a true ring around the dial: touches in the square corners outside the outermost ring no longer move a ruler, so the page scrolls there too.</span></li>
       <li><b>11</b><span>2026-11-05: Ruler hands only grab from the band around the edge of the dial or right on a knob; the rest of the face is a dead zone, so scrolling on a phone no longer moves them by accident.</span></li>
       <li><b>10</b><span>2026-11-05: The since-last arc stops at the first triangle behind the hour hand; radar pings for every triangle on the dial, drawn above the hands, closing in as the hour hand nears them and drifting out as it moves away, fading out by half a sweep, with the sweep following the fastest main hand on show; sunrise/sunset progress at the top middle, next agreement and furthest apart in the bottom corners, and the ruler line gone from under the dial (it is in the rate strip), so the dial is bigger; inner and outer unit-circle dial styles; the legend describes every tab; every tab scrolls inside itself.</span></li>
@@ -2492,7 +2493,7 @@
   // ---------- Updates ----------
   // Fetches the latest service worker; a new one installs, takes over and
   // the page reloads into the new version.
-  const APP_VERSION = 12;
+  const APP_VERSION = 13;
   $('updateBtn').onclick = async () => {
     const msg = $('updateMsg');
     const reg = 'serviceWorker' in navigator && window.isSecureContext && await navigator.serviceWorker.getRegistration().catch(() => null);
